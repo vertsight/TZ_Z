@@ -41,16 +41,29 @@ public class PlayerController : MonoBehaviour
 
     private void LookAround()
     {
-        if (Input.touchCount > 0  && !EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+        if (Input.touchCount < 1) return;
+
+        Touch? validTouch = null;
+
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            Touch touch = Input.GetTouch(0);
+            if (!EventSystem.current.IsPointerOverGameObject(Input.GetTouch(i).fingerId))
+            {
+                validTouch = Input.GetTouch(i);
+                break;
+            }
+        }
+
+        if (validTouch.HasValue)
+        {
+            Touch touch = validTouch.Value;
             touchDelta = touch.deltaPosition;
-            
+
             float horizontalRotation = touchDelta.x * lookSpeed;
             transform.Rotate(0, horizontalRotation, 0);
 
-            verticalRotation -= touchDelta.y * lookSpeed; 
-            verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle); 
+            verticalRotation -= touchDelta.y * lookSpeed;
+            verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
 
             cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
         }
